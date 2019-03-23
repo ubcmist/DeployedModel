@@ -9,7 +9,9 @@ COPY . /app
 
 WORKDIR /app
 
-RUN pip3 install -r requirements.txt && chmod -R 777 entrypoint.sh && ls
+RUN pip3 install -r requirements.txt && chmod -R 777 entrypoint.sh 
+
+RUN apt-get update && apt-get -y install sudo
 
 ENTRYPOINT ./entrypoint.sh
 
