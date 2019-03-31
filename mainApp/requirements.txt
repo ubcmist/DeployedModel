@@ -2,3 +2,5 @@ flask
 flask_restful
 keras
 tensorflow
+pandas
+numpy
