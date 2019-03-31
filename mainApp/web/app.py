@@ -1,10 +1,16 @@
+import logging
+import random
+import time
+
 from flask import Flask, jsonify, request
 import tensorflow as tf
+import numpy as np
+
 app = Flask(__name__)
 
-MODEL_PATH = 'mainApp/model/hbmodel/SAMPLE_HR_200_MODEL.pb'
+TENSORFLOW_MODEL_PATH = 'mainApp/model/hbmodel/SAMPLE_HR_200_MODEL.pb'
 
-with open(MODEL_PATH, 'rb') as f:
+with open(TENSORFLOW_MODEL_PATH, 'rb') as f:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(f.read())
 
@@ -23,14 +29,20 @@ sess_config = tf.ConfigProto(
 )
 sess = tf.Session(graph=graph, config=sess_config)
 
-@app.route('/')
-def hello_world():
-    return 'Testing...'
+input_op = graph.get_operation_by_name('input_HR')
+input_tensor = input_op.outputs[0]
 
-@app.route('/predict/')
+operations = graph.get_operations()
+
+@app.route('/predict/tensorflow/')
 def predict():
     content = request.json
-    return 'Testing...'
+    app.logger.info("Predicting...")
+    t = time.time()
+    preds = sess.run(output_tensor, {input_tensor : input_HR})
+    dt = time.time() - t
+    app.logger.info("Execution time: %0.2f" % (dt * 1000.))
+    return jsonify(preds)
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0')
